@@ -1,0 +1,30 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title= title
+    link(rel="stylesheet" href="/css/style.css")
+  body
+    main.container.form-container
+      a.back-link(href="/") Return to the homepage
+      header.page-header
+        p.eyebrow HUBSPOT INTEGRATION PRACTICUM
+        h1 Add a plant
+        p.description Create a new HubSpot plant record. All three fields are required.
+      if errors.length
+        .alert(role="alert")
+          h2 Please check the form
+          ul
+            each error in errors
+              li= error
+      form(action="/update-cobj" method="post")
+        each field in fields
+          .field
+            label(for=field.name)= field.label
+            if field.name === 'care_notes'
+              textarea(id=field.name name=field.name required maxlength=field.maxLength rows="5")= values[field.name] || ''
+            else
+              input(id=field.name name=field.name type="text" required maxlength=field.maxLength value=values[field.name] || '')
+        button.button(type="submit") Save plant
+      footer Saving creates a record in HubSpot and returns you to the catalog.

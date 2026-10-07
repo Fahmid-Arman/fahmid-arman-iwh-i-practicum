@@ -1,0 +1,35 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title= title
+    link(rel="stylesheet" href="/css/style.css")
+  body
+    main.container
+      header.page-header
+        p.eyebrow HUBSPOT INTEGRATION PRACTICUM
+        h1 Plant Catalog
+        p.description A small collection of plants and the care that keeps them growing.
+        a.button(href="/update-cobj") Add to this table
+      if error
+        p.alert(role="alert")= error
+        a(href="/") Retry loading the catalog
+      else
+        p.record-count #{data.length} plant#{data.length === 1 ? '' : 's'} in HubSpot
+        .table-wrapper
+          table
+            caption.sr-only Plant records from HubSpot
+            thead
+              tr
+                each field in fields
+                  th(scope="col")= field.label
+            tbody
+              each plant in data
+                tr
+                  each field in fields
+                    td= plant.properties[field.name] || '—'
+              else
+                tr
+                  td.empty(colspan="3") No plants yet. Add the first plant to this table.
+      footer Records are stored in the HubSpot developer test account.
