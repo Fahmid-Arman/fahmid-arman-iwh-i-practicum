@@ -2,9 +2,11 @@
 
 An Express application that reads and creates plant records in a HubSpot developer test account. It uses Axios for the HubSpot API and Pug for the homepage table and form.
 
-**Status:** App implementation and automated checks are complete. Live HubSpot setup and practicum submission are pending.
+**Status:** App implementation and automated checks are complete. Developer test account 247627015 has been created. Private-app authorization, live API validation, and practicum submission are pending.
 
-**Developer test account object list:** Pending account creation and the resulting custom object ID. A real list-view link must replace this sentence before submission.
+**Developer test account:** Fahmid Arman - Foundations Practicum (247627015), created specifically for this exercise.
+
+**Developer test account object list:** Pending custom object creation and the resulting object ID. A real list-view link must replace this sentence before submission.
 
 ## Run locally
 
