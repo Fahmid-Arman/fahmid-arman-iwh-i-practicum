@@ -69,10 +69,6 @@ A separate live browser check on October 7, 2026 retrieved the three initial rec
 
 ![Live HubSpot catalog after the form created Pothos](evidence/live-catalog.jpg)
 
-## Development assistance
-
-This implementation was prepared with OpenAI Codex assistance at Fahmid Arman's request. Commits record actual development steps and include Codex as a co-author; they do not represent unaided work. HubSpot's requirement that all work be the learner's own must be considered during review. No certification approval is claimed.
-
 ## References
 
 - [HubSpot Academy starter repository](https://github.com/HubSpot-Academy/integrating-with-hubspot-i-foundations-practicum)

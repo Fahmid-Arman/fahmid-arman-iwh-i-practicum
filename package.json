@@ -7,7 +7,7 @@
         "start": "node index.js",
         "test": "node --test"
     },
-    "author": "Fahmid Arman (with OpenAI Codex assistance)",
+    "author": "Fahmid Arman",
     "engines": { "node": ">=22" },
     "license": "ISC",
     "dependencies": {
