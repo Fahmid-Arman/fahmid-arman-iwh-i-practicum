@@ -1,0 +1,7 @@
+{
+  "inputs": [
+    { "properties": { "name": "Atlas", "species": "Monstera deliciosa", "care_notes": "Bright indirect light; let the top layer of soil dry before watering." } },
+    { "properties": { "name": "Fern", "species": "Nephrolepis exaltata", "care_notes": "Keep the soil lightly moist and provide indirect light." } },
+    { "properties": { "name": "Jade", "species": "Crassula ovata", "care_notes": "Provide bright light and allow the soil to dry between waterings." } }
+  ]
+}

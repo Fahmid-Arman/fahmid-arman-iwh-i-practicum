@@ -1,71 +1,99 @@
+require('dotenv').config({ quiet: true });
+const path = require('node:path');
 const express = require('express');
 const axios = require('axios');
-const app = express();
 
-app.set('view engine', 'pug');
-app.use(express.static(__dirname + '/public'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+const fields = [
+  { name: 'name', label: 'Name', maxLength: 100 },
+  { name: 'species', label: 'Species', maxLength: 150 },
+  { name: 'care_notes', label: 'Care Notes', maxLength: 1000 }
+];
 
-// * Please DO NOT INCLUDE the private app access token in your repo. Don't do this practicum in your normal account.
-const PRIVATE_APP_ACCESS = '';
+function createApp({ token, objectType, client } = {}) {
+  if (!objectType || (!client && !token)) {
+    throw new Error('Set HUBSPOT_ACCESS_TOKEN and HUBSPOT_OBJECT_TYPE in your local .env file.');
+  }
+  const hubspot = client || axios.create({
+    baseURL: 'https://api.hubapi.com', timeout: 15000,
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const objectsPath = `/crm/v3/objects/${encodeURIComponent(objectType)}`;
+  const app = express();
+  app.disable('x-powered-by');
+  app.set('view engine', 'pug');
+  app.set('views', path.join(__dirname, 'views'));
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.urlencoded({ extended: false, limit: '16kb' }));
+  app.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 
-// TODO: ROUTE 1 - Create a new app.get route for the homepage to call your custom object data. Pass this data along to the front-end and create a new pug template in the views folder.
-
-// * Code for Route 1 goes here
-
-// TODO: ROUTE 2 - Create a new app.get route for the form to create or update new custom object data. Send this data along in the next route.
-
-// * Code for Route 2 goes here
-
-// TODO: ROUTE 3 - Create a new app.post route for the custom objects form to create or update your custom object data. Once executed, redirect the user to the homepage.
-
-// * Code for Route 3 goes here
-
-/** 
-* * This is sample code to give you a reference for how you should structure your calls. 
-
-* * App.get sample
-app.get('/contacts', async (req, res) => {
-    const contacts = 'https://api.hubspot.com/crm/v3/objects/contacts';
-    const headers = {
-        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
-        'Content-Type': 'application/json'
-    }
+  // Retrieve every page and explicitly request all three custom properties.
+  app.get('/', async (req, res) => {
     try {
-        const resp = await axios.get(contacts, { headers });
-        const data = resp.data.results;
-        res.render('contacts', { title: 'Contacts | HubSpot APIs', data });      
-    } catch (error) {
-        console.error(error);
-    }
-});
-
-* * App.post sample
-app.post('/update', async (req, res) => {
-    const update = {
-        properties: {
-            "favorite_book": req.body.newVal
+      const data = [];
+      let after;
+      const seenCursors = new Set();
+      do {
+        const response = await hubspot.get(objectsPath, {
+          params: { properties: fields.map(field => field.name).join(','), limit: 100, ...(after ? { after } : {}) }
+        });
+        data.push(...response.data.results);
+        after = response.data.paging?.next?.after;
+        if (after) {
+          if (seenCursors.has(String(after))) throw new Error('Repeated pagination cursor');
+          seenCursors.add(String(after));
         }
+      } while (after);
+      res.render('homepage', { title: 'Plant Catalog | Integrating With HubSpot I Practicum', data, fields });
+    } catch (error) {
+      // Axios request objects contain credentials, so log only status or error code.
+      console.error('HubSpot record retrieval failed', error.response?.status || error.code || 'UNKNOWN');
+      res.status(502).render('homepage', {
+        title: 'Plant Catalog | Integrating With HubSpot I Practicum', data: [], fields,
+        error: 'The plant catalog could not be loaded from HubSpot. Check the connection and try again.'
+      });
     }
+  });
 
-    const email = req.query.email;
-    const updateContact = `https://api.hubapi.com/crm/v3/objects/contacts/${email}?idProperty=email`;
-    const headers = {
-        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
-        'Content-Type': 'application/json'
+  app.get('/update-cobj', (req, res) => {
+    res.render('updates', {
+      title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', fields, values: {}, errors: []
+    });
+  });
+
+  app.post('/update-cobj', async (req, res) => {
+    // Reject submissions originating on another website to this local-only app.
+    if (req.get('origin') && req.get('origin') !== `${req.protocol}://${req.get('host')}`) {
+      return res.status(403).send('This form must be submitted from the local app.');
+    }
+    const properties = {};
+    const errors = [];
+    for (const field of fields) {
+      const raw = req.body?.[field.name];
+      const value = typeof raw === 'string' ? raw.trim() : '';
+      properties[field.name] = value;
+      if (!value) errors.push(`${field.label} is required.`);
+      else if (value.length > field.maxLength) errors.push(`${field.label} must be ${field.maxLength} characters or fewer.`);
+    }
+    const form = {
+      title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', fields, values: properties, errors
     };
-
-    try { 
-        await axios.patch(updateContact, update, { headers } );
-        res.redirect('back');
-    } catch(err) {
-        console.error(err);
+    if (errors.length) return res.status(400).render('updates', form);
+    try {
+      await hubspot.post(objectsPath, { properties });
+      res.redirect(303, '/');
+    } catch (error) {
+      console.error('HubSpot record creation failed', error.response?.status || error.code || 'UNKNOWN');
+      form.errors = ['HubSpot could not confirm the new record. Check the catalog before retrying to avoid a duplicate.'];
+      res.status(502).render('updates', form);
     }
+  });
+  return app;
+}
 
-});
-*/
+if (require.main === module) {
+  const port = Number(process.env.PORT || 3000);
+  const app = createApp({ token: process.env.HUBSPOT_ACCESS_TOKEN, objectType: process.env.HUBSPOT_OBJECT_TYPE });
+  app.listen(port, '127.0.0.1', () => console.log(`Plant catalog listening on http://localhost:${port}`));
+}
 
-
-// * Localhost
-app.listen(3000, () => console.log('Listening on http://localhost:3000'));
+module.exports = { createApp, fields };

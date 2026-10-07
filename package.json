@@ -1,16 +1,19 @@
 {
-    "name": "integrating-with-hubspot-i-foundations-practicum",
+    "name": "fahmid-arman-iwh-i-practicum",
     "version": "1.0.0",
-    "description": "",
+    "description": "A HubSpot plant catalog built with Express, Axios and Pug",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node index.js",
+        "test": "node --test"
     },
-    "author": "HubSpot Academy learner",
+    "author": "Fahmid Arman (with OpenAI Codex assistance)",
+    "engines": { "node": ">=22" },
     "license": "ISC",
     "dependencies": {
-        "axios": "^1.3.5",
-        "express": "^4.18.2",
-        "pug": "^3.0.2"
+        "axios": "^1.20.0",
+        "dotenv": "^17.4.2",
+        "express": "^4.22.3",
+        "pug": "^3.0.4"
     }
 }
