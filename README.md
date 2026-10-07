@@ -2,11 +2,13 @@
 
 An Express application that reads and creates plant records in a HubSpot developer test account. It uses Axios for the HubSpot API and Pug for the homepage table and form.
 
-**Status:** App implementation and automated checks are complete. Developer test account 247627015 has been created. Private-app authorization, live API validation, and practicum submission are pending.
+**Status:** Implementation, developer test account setup, private app creation, and live API validation are complete. The practicum is ready for submission; certification remains subject to HubSpot review.
 
 **Developer test account:** Fahmid Arman - Foundations Practicum (247627015), created specifically for this exercise.
 
-**Developer test account object list:** Pending custom object creation and the resulting object ID. A real list-view link must replace this sentence before submission.
+**Developer test account object list:** [Plants in test account 247627015](https://app.hubspot.com/contacts/247627015/objects/2-269724890/views/all/list).
+
+**Custom object:** Plants (`practicum_plants`), object type ID `2-269724890`. The object has the three custom string properties Name (`name`), Species (`species`), and Care Notes (`care_notes`), with the association type to contacts enabled.
 
 ## Run locally
 
@@ -61,7 +63,11 @@ npm test
 npm audit --omit=dev
 ```
 
-Six automated tests exercise pagination, successful form creation and subsequent listing, missing/oversized/repeated fields, the prescribed form controls, API failures, and cross-origin submission rejection. They use a fake HubSpot client and do not establish that live API setup has completed.
+Six automated tests pass and exercise pagination, successful form creation and subsequent listing, missing/oversized/repeated fields, the prescribed form controls, API failures, and cross-origin submission rejection. The dependency audit reports zero vulnerabilities.
+
+A separate live browser check on October 7, 2026 retrieved the three initial records (Atlas, Fern, and Jade) from HubSpot. Submitting Pothos through `/update-cobj` created a fourth record, redirected to `/`, and displayed the record in the table. The schema API also confirmed all three custom properties and the contacts association.
+
+![Live HubSpot catalog after the form created Pothos](evidence/live-catalog.jpg)
 
 ## Development assistance
 
