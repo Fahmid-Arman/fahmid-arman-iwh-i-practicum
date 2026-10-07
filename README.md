@@ -2,7 +2,7 @@
 
 An Express application that reads and creates plant records in a HubSpot developer test account. It uses Axios for the HubSpot API and Pug for the homepage table and form.
 
-**Status:** Implementation, developer test account setup, private app creation, and live API validation are complete. The practicum is ready for submission; certification remains subject to HubSpot review.
+**Status:** Submitted to HubSpot Academy on October 7, 2026 after completing the implementation, developer test account setup, private app creation, and live API validation. Manual grading is pending; certification requires a passing practicum grade. HubSpot states grading takes up to seven business days.
 
 **Developer test account:** Fahmid Arman - Foundations Practicum (247627015), created specifically for this exercise.
 
