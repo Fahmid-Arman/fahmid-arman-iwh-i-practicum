@@ -1,32 +1,72 @@
-# Welcome to the Integrating With HubSpot I: Foundations Practicum
+# HubSpot Plant Catalog
 
-This repository is for the Integrating With HubSpot I: Foundations course. This practicum is one of two requirements for receiving your Integrating With HubSpot I: Foundations certification. You must also take the exam and receive a passing grade (at least 75%).
+An Express application that reads and creates plant records in a HubSpot developer test account. It uses Axios for the HubSpot API and Pug for the homepage table and form.
 
-To read the full directions, please go to the [practicum instructions](https://app.hubspot.com/academy/l/tracks/1092124/1093824/5493?language=en).
+**Status:** App implementation and automated checks are complete. Live HubSpot setup and practicum submission are pending.
 
-**Put your HubSpot developer test account custom objects URL link here:** https://app.hubspot.com/contacts/l/objects/${custom-obj-number}/views/all/list
+**Developer test account object list:** Pending account creation and the resulting custom object ID. A real list-view link must replace this sentence before submission.
 
-___
-## Tips:
-- Commit to your repository often. Even if you make small tweaks to your code, it’s best to be committing to your repository frequently.
-- The subject of the custom object is up to you. Feel free to get creative!
-- Please create a test account and keep your private app access token in an ignored local .env file.
-- Ensure you re-merge any working branches into the main branch.
-- DO NOT ADD YOUR PRIVATE APP TOKEN TO YOUR REPOSITORY. 
+## Run locally
 
-## Pre-requisites:
-- Using [Node](https://nodejs.org/en/download) and node packages
-- Using [Express](https://expressjs.com/en/starter/installing.html)
-- Using [Axios](https://axios-http.com/docs/intro)
-- Using [Pug templating system](https://pugjs.org/api/getting-started.html)
-- Using the command line
-- Using [Git and GitHub](https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners)
+Use Node.js 22 or later.
 
-## Requirements
-- All work must be your own. During the grading process we will check the revision history. Submissions that do not meet this requirement will not be considered.
-- You must have at least two new routes in your index.js file and one new pug template for the homepage.
-- You must create a developer test account and link to it in your README.md file. Submissions that do not meet this requirement will not be considered.
+```sh
+npm ci
+cp .env.example .env
+```
+
+Edit the local `.env` file:
+
+```dotenv
+HUBSPOT_ACCESS_TOKEN=your_private_app_token
+HUBSPOT_OBJECT_TYPE=your_custom_object_type_id
+PORT=3000
+```
+
+```sh
+npm start
+```
+
+Open http://localhost:3000. Click **Add to this table**, enter Name, Species, and Care Notes, then save. The application creates a HubSpot record and redirects to the homepage, which retrieves all pages of records with those three properties.
+
+The server binds to the local computer only. Keep `.env` local and never commit, screenshot, or publish the access token. A reviewer should use their own test account token to run the application.
+
+## HubSpot setup
+
+1. Create a new developer test account with custom object access.
+2. Create **Fahmid's Practicum Private App** in that test account with read and write access to custom object schemas, custom object records, and contacts, as prescribed by the course.
+3. Submit `setup/plant-schema.json` to `POST /crm-object-schemas/v3/schemas`. The schema defines three custom string properties, including **Name**, and the association to contacts (`0-1`). Save the returned `objectTypeId` in `.env`.
+4. Submit `setup/seed-plants.json` to `POST /crm/v3/objects/{objectTypeId}/batch/create` once to create the three initial records. Check existing records before retrying a failed request to avoid duplicates.
+5. Replace the pending account link above with `https://app.hubspot.com/contacts/{test-account-id}/objects/{objectTypeId}/views/all/list`.
+6. Verify a fourth record can be created through the browser form and appears in the live HubSpot table.
+
+Setup JSON contains sample data only. The app sends tokens only in the Authorization header to `https://api.hubapi.com`.
+
+## Routes and views
+
+| Route | Behavior | View |
+| --- | --- | --- |
+| `GET /` | Reads all plant records, requesting all three properties | `views/homepage.pug` |
+| `GET /update-cobj` | Displays the three-field creation form | `views/updates.pug` |
+| `POST /update-cobj` | Validates and creates a record, then redirects to `/` | Re-renders the form on failure |
+
+The form uses the required title **Update Custom Object Form | Integrating With HubSpot I Practicum** and includes **Return to the homepage**. Errors preserve entered values, and CRM text is HTML-escaped by Pug.
+
+## Validation
+
+```sh
+npm test
+npm audit --omit=dev
+```
+
+Six automated tests exercise pagination, successful form creation and subsequent listing, missing/oversized/repeated fields, the prescribed form controls, API failures, and cross-origin submission rejection. They use a fake HubSpot client and do not establish that live API setup has completed.
 
 ## Development assistance
 
-This implementation is being prepared with OpenAI Codex assistance at Fahmid Arman's request. The commit history records actual development steps; it does not represent unaided work. This disclosure should be considered alongside HubSpot's own-work requirement.
+This implementation was prepared with OpenAI Codex assistance at Fahmid Arman's request. Commits record actual development steps and include Codex as a co-author; they do not represent unaided work. HubSpot's requirement that all work be the learner's own must be considered during review. No certification approval is claimed.
+
+## References
+
+- [HubSpot Academy starter repository](https://github.com/HubSpot-Academy/integrating-with-hubspot-i-foundations-practicum)
+- [HubSpot schemas API guide](https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/schemas/guide)
+- [HubSpot custom object records API guide](https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/custom-objects/guide)

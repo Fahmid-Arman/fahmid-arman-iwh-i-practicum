@@ -1,0 +1,15 @@
+{
+  "name": "practicum_plants",
+  "description": "Plant catalog for the Integrating With HubSpot I: Foundations practicum.",
+  "labels": { "singular": "Plant", "plural": "Plants" },
+  "primaryDisplayProperty": "name",
+  "secondaryDisplayProperties": ["species", "care_notes"],
+  "searchableProperties": ["name", "species"],
+  "requiredProperties": ["name", "species", "care_notes"],
+  "properties": [
+    { "name": "name", "label": "Name", "type": "string", "fieldType": "text" },
+    { "name": "species", "label": "Species", "type": "string", "fieldType": "text" },
+    { "name": "care_notes", "label": "Care Notes", "type": "string", "fieldType": "textarea" }
+  ],
+  "associatedObjects": ["0-1"]
+}
